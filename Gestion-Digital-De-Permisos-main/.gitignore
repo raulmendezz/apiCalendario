@@ -1,0 +1,10 @@
+# IDE
+.idea/
+*.iml
+
+# Build
+target/
+
+# Secrets
+.env
+application-local.properties
