@@ -19,9 +19,7 @@ public class SesionHorarioService {
  }
  public void eliminar(Long id) { if(!repository.existsById(id)) throw new EntityNotFoundException("SesionHorario no encontrado: "+id); repository.deleteById(id); }
  private void validar(SesionHorario e) {
-
   if(e.getHoraInicio()!=null && e.getHoraFin()!=null && !e.getHoraInicio().isBefore(e.getHoraFin())) throw new IllegalArgumentException("La hora de inicio debe ser anterior a la hora de fin.");
-
  }
  private void copiar(SesionHorario a, SesionHorario d) {
   if(d.getGrupo()!=null) a.setGrupo(d.getGrupo());

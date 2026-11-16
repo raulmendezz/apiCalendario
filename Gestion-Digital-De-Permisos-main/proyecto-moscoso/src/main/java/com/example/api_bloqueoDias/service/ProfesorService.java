@@ -10,19 +10,13 @@ public class ProfesorService {
  public ProfesorService(ProfesorRepository repository) { this.repository=repository; }
  public List<Profesor> listar() { return repository.findAll(); }
  public Profesor obtener(Long id) { return repository.findById(id).orElseThrow(() -> new EntityNotFoundException("Profesor no encontrado: "+id)); }
- public Profesor crear(Profesor entidad) { validar(entidad); return repository.save(entidad); }
+ public Profesor crear(Profesor entidad) { return repository.save(entidad); }
  public Profesor actualizar(Long id, Profesor datos) {
   Profesor actual=obtener(id);
   copiar(actual, datos);
-  validar(actual);
   return repository.save(actual);
  }
  public void eliminar(Long id) { if(!repository.existsById(id)) throw new EntityNotFoundException("Profesor no encontrado: "+id); repository.deleteById(id); }
- private void validar(Profesor e) {
-
-
-
- }
  private void copiar(Profesor a, Profesor d) {
   if(d.getNombre()!=null) a.setNombre(d.getNombre());
   if(d.getApellidos()!=null) a.setApellidos(d.getApellidos());

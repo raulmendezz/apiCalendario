@@ -19,8 +19,6 @@ public class MoscosoSolicitudService {
  }
  public void eliminar(Long id) { if(!repository.existsById(id)) throw new EntityNotFoundException("MoscosoSolicitud no encontrado: "+id); repository.deleteById(id); }
  private void validar(MoscosoSolicitud e) {
-
-
   if(e.getTipoLectivo()!=null && !e.getTipoLectivo().equalsIgnoreCase("LECTIVO") && !e.getTipoLectivo().equalsIgnoreCase("NO LECTIVO")) throw new IllegalArgumentException("tipoLectivo debe ser LECTIVO o NO LECTIVO.");
  }
  private void copiar(MoscosoSolicitud a, MoscosoSolicitud d) {

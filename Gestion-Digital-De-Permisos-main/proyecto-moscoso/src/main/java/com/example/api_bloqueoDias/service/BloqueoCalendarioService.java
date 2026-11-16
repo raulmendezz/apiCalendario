@@ -20,8 +20,6 @@ public class BloqueoCalendarioService {
  public void eliminar(Long id) { if(!repository.existsById(id)) throw new EntityNotFoundException("BloqueoCalendario no encontrado: "+id); repository.deleteById(id); }
  private void validar(BloqueoCalendario e) {
   if(e.getFechaInicio()!=null && e.getFechaFin()!=null && e.getFechaInicio().isAfter(e.getFechaFin())) throw new IllegalArgumentException("La fecha de inicio no puede ser posterior a la fecha de fin.");
-
-
  }
  private void copiar(BloqueoCalendario a, BloqueoCalendario d) {
   if(d.getFechaInicio()!=null) a.setFechaInicio(d.getFechaInicio());
