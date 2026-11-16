@@ -1,0 +1,22 @@
+site_name: Gestión Digital de Permisos
+site_description: API REST para la gestión de permisos de moscoso y horarios en centros educativos
+site_author: Raul
+
+theme:
+  name: material
+  language: es
+  palette:
+    primary: indigo
+    accent: indigo
+
+nav:
+  - Inicio: index.md
+  - Endpoints de la API: api.md
+  - Modelo de Datos: modelo.md
+  - Variables de Entorno: configuracion.md
+
+markdown_extensions:
+  - tables
+  - admonition
+  - pymdownx.highlight
+  - pymdownx.superfences
