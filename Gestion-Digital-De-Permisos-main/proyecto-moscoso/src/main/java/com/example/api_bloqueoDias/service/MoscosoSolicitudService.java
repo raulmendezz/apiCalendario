@@ -10,17 +10,13 @@ public class MoscosoSolicitudService {
  public MoscosoSolicitudService(MoscosoSolicitudRepository repository) { this.repository=repository; }
  public List<MoscosoSolicitud> listar() { return repository.findAll(); }
  public MoscosoSolicitud obtener(Long id) { return repository.findById(id).orElseThrow(() -> new EntityNotFoundException("MoscosoSolicitud no encontrado: "+id)); }
- public MoscosoSolicitud crear(MoscosoSolicitud entidad) { validar(entidad); return repository.save(entidad); }
+ public MoscosoSolicitud crear(MoscosoSolicitud entidad) { return repository.save(entidad); }
  public MoscosoSolicitud actualizar(Long id, MoscosoSolicitud datos) {
   MoscosoSolicitud actual=obtener(id);
   copiar(actual, datos);
-  validar(actual);
   return repository.save(actual);
  }
  public void eliminar(Long id) { if(!repository.existsById(id)) throw new EntityNotFoundException("MoscosoSolicitud no encontrado: "+id); repository.deleteById(id); }
- private void validar(MoscosoSolicitud e) {
-  if(e.getTipoLectivo()!=null && !e.getTipoLectivo().equalsIgnoreCase("LECTIVO") && !e.getTipoLectivo().equalsIgnoreCase("NO LECTIVO")) throw new IllegalArgumentException("tipoLectivo debe ser LECTIVO o NO LECTIVO.");
- }
  private void copiar(MoscosoSolicitud a, MoscosoSolicitud d) {
   if(d.getProfesor()!=null) a.setProfesor(d.getProfesor());
   if(d.getFecha()!=null) a.setFecha(d.getFecha());

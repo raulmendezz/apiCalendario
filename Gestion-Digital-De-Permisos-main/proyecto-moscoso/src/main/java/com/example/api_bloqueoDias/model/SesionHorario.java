@@ -11,8 +11,8 @@ public class SesionHorario {
  @ManyToOne(fetch=FetchType.EAGER, optional=false) @JoinColumn(name="cod_grupo", nullable=false)
  @JsonIgnoreProperties({"hibernateLazyInitializer","handler"}) private GrupoAlumnado grupo;
  @ManyToOne(fetch=FetchType.EAGER, optional=false) @JoinColumn(name="id_profesor", nullable=false)
- @JsonIgnoreProperties({"hibernateLazyInitializer","handler"}) private Profesor profesor;
+ @JsonIgnoreProperties({"hibernateLazyInitializer","handler","dni","cp","localidad","telefono","direccion","cuerpo"}) private Profesor profesor;
  @NotNull @Column(name="hora_inicio", nullable=false) private LocalTime horaInicio;
  @NotNull @Column(name="hora_fin", nullable=false) private LocalTime horaFin;
- @NotBlank @Column(name="dia_semana", nullable=false, length=15) private String diaSemana;
+ @NotNull @Enumerated(EnumType.STRING) @Column(name="dia_semana", nullable=false, length=10) private DiaSemana diaSemana;
 }
