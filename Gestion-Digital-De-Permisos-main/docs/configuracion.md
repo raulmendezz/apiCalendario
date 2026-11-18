@@ -12,11 +12,14 @@ La aplicación no tiene credenciales hardcodeadas. Configura las siguientes vari
 
 ## Variables de Sprint 3 (JWT)
 
-| Variable | Descripción |
-|---|---|
-| `JWT_SECRET` | Clave secreta para firmar tokens JWT (mínimo 32 caracteres) |
-| `ADMIN1_USERNAME` | Usuario del primer administrador |
-| `ADMIN1_PASSWORD` | Contraseña del primer administrador (bcrypt) |
+| Variable | Descripción | Por defecto |
+|---|---|---|
+| `JWT_SECRET` | Clave secreta HS256 (obligatoria, mínimo 32 caracteres) | — |
+| `JWT_EXPIRACION_MINUTOS` | Tiempo de vida del token en minutos | `60` |
+| `ADMIN1_USERNAME` | Username del administrador inicial | `admin` |
+| `ADMIN1_PASSWORD` | Contraseña del administrador (texto plano o bcrypt `$2...`) | — |
+| `USER1_USERNAME` | Username del usuario PROFESOR inicial | `user` |
+| `USER1_PASSWORD` | Contraseña del usuario PROFESOR (texto plano o bcrypt `$2...`) | — |
 
 !!! warning "Nunca subas estos valores al repositorio"
     Usa un fichero `.env` o las variables de entorno del servidor. El `.gitignore` ya excluye `.env` y `application-local.properties`.

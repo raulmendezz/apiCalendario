@@ -1,4 +1,5 @@
 package com.example.api_bloqueoDias.exception;
+import com.example.api_bloqueoDias.exception.CredencialesInvalidasException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -13,6 +14,8 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
  private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+ @ExceptionHandler(CredencialesInvalidasException.class)
+ public ResponseEntity<ApiError> credencialesInvalidas(CredencialesInvalidasException ex, HttpServletRequest req) { return respuesta(HttpStatus.UNAUTHORIZED,ex.getMessage(),req); }
  @ExceptionHandler(EntityNotFoundException.class)
  public ResponseEntity<ApiError> noEncontrado(EntityNotFoundException ex, HttpServletRequest req) { return respuesta(HttpStatus.NOT_FOUND,ex.getMessage(),req); }
  @ExceptionHandler({IllegalArgumentException.class, MethodArgumentNotValidException.class})

@@ -25,7 +25,26 @@ CONFIGURACION
   clave (PK)  valor
 ```
 
+```
+
+## Diagrama de entidades (Sprint 3)
+
+```
+USUARIO
+  id_usuario (PK)  username (único)  password (bcrypt)
+  rol (enum: ADMIN, PROFESOR)
+  id_profesor (FK → PROFESOR, opcional, único)
+```
+
+La relación USUARIO ↔ PROFESOR es **1:1 opcional**: el ADMIN no tiene profesor vinculado; el PROFESOR sí puede tenerlo (para aplicar reglas de visibilidad en Sprint 3 Paso 2).
+
 ## Enumerados
+
+### `Rol`
+| Valor | Descripción |
+|---|---|
+| `ADMIN` | Administrador con acceso completo |
+| `PROFESOR` | Profesor con acceso a sus propios datos |
 
 ### `EstadoSolicitud`
 | Valor | Descripción |

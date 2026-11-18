@@ -2,7 +2,33 @@
 
 Base URL: `http://localhost:8080`
 
-> **Seguridad (Sprint 3):** todos los endpoints estarán protegidos con JWT. Los roles previstos son `ADMIN` y `PROFESOR`.
+> **Seguridad (Sprint 3):** todos los endpoints requieren JWT excepto `POST /api/auth/login`. Envía el token como `Authorization: Bearer <token>`.
+
+---
+
+## Autenticación `/api/auth`
+
+| Método | Ruta | Descripción | Auth |
+|---|---|---|---|
+| POST | `/api/auth/login` | Obtiene un token JWT | Público |
+
+### POST /api/auth/login — body
+```json
+{ "username": "admin", "password": "miPassword" }
+```
+
+### POST /api/auth/login — respuesta 200
+```json
+{
+  "token": "eyJhbGc...",
+  "tipo": "Bearer",
+  "expiraEnSegundos": 3600,
+  "username": "admin",
+  "rol": "ADMIN"
+}
+```
+
+Credenciales incorrectas → `401 Unauthorized` con formato `ApiError`.
 
 ---
 
@@ -116,6 +142,8 @@ Clave disponible: `capacidad_diaria` (valor por defecto: `5`).
 | Código | Causa |
 |---|---|
 | 400 | Datos inválidos o JSON malformado |
+| 401 | No autenticado o credenciales inválidas |
+| 403 | Sin permisos para el recurso |
 | 404 | Recurso no encontrado |
 | 409 | Regla de negocio o integridad de datos |
 | 500 | Error interno (ver logs) |

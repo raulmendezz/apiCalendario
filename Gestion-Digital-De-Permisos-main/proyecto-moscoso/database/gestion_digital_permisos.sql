@@ -50,3 +50,12 @@ CREATE TABLE IF NOT EXISTS moscosos_solicitudes (
  CONSTRAINT fk_moscoso_profesor FOREIGN KEY (id_profesor) REFERENCES profesores(id_profesor),
  CONSTRAINT chk_tipo_lectivo CHECK (tipo_lectivo IN ('LECTIVO','NO LECTIVO'))
 );
+
+CREATE TABLE IF NOT EXISTS usuarios (
+ id_usuario BIGINT AUTO_INCREMENT PRIMARY KEY,
+ username VARCHAR(50) NOT NULL UNIQUE,
+ password VARCHAR(100) NOT NULL,
+ rol VARCHAR(10) NOT NULL,
+ id_profesor BIGINT UNIQUE,
+ CONSTRAINT fk_usuario_profesor FOREIGN KEY (id_profesor) REFERENCES profesores(id_profesor)
+);
