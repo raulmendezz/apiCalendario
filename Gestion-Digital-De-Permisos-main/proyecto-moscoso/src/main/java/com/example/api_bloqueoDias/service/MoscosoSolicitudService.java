@@ -64,6 +64,7 @@ public class MoscosoSolicitudService {
     public MoscosoSolicitud actualizar(Long id, MoscosoSolicitud datos, Jwt jwt) {
         MoscosoSolicitud actual = obtener(id);
         comprobarPropietario(actual, jwt);
+        comprobarPendiente(actual, jwt);
         if (!esAdmin(jwt)) datos.setProfesor(null); // un profesor no puede cambiar el profesor
         copiar(actual, datos);
         validarSolicitud(actual, id);
@@ -86,8 +87,16 @@ public class MoscosoSolicitudService {
     }
 
     public void eliminar(Long id, Jwt jwt) {
-        comprobarPropietario(obtener(id), jwt);
+        MoscosoSolicitud solicitud = obtener(id);
+        comprobarPropietario(solicitud, jwt);
+        comprobarPendiente(solicitud, jwt);
         repository.deleteById(id);
+    }
+
+    // Un profesor solo puede modificar o borrar solicitudes aún pendientes
+    private void comprobarPendiente(MoscosoSolicitud solicitud, Jwt jwt) {
+        if (!esAdmin(jwt) && solicitud.getEstado() != EstadoSolicitud.PENDIENTE)
+            throw new ReglaNegocioException("Solo se pueden modificar o eliminar solicitudes en estado PENDIENTE.");
     }
 
     private boolean esAdmin(Jwt jwt) {

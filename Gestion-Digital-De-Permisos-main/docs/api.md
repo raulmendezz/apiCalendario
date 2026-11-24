@@ -9,14 +9,16 @@ Base URL: `http://localhost:8080`
 | Rol | Permisos |
 |---|---|
 | `ADMIN` | Todo: lectura y escritura en todos los recursos, y resolver solicitudes. |
-| `PROFESOR` | Solo lectura (GET) de profesores, grupos, sesiones, bloqueos y configuración. En solicitudes solo ve, crea, edita y borra **las suyas**. |
+| `PROFESOR` | Solo lectura (GET) de bloqueos y configuración (profesores, grupos y sesiones: 403; su perfil lo obtiene con `/api/auth/me`). En solicitudes solo ve, crea, edita y borra **las suyas**. |
 
 Un `PROFESOR` recibe `403 Forbidden` en:
 
+- Cualquier petición a `/api/profesores`, `/api/grupos-alumnado`, `/api/sesiones-horario` y `/api/consultas` (también GET).
 - POST/PUT/DELETE de `/api/bloqueos-calendario`, `/api/profesores`, `/api/grupos-alumnado` y `/api/sesiones-horario`.
 - PUT de `/api/configuracion/{clave}`.
 - PATCH `/api/moscosos-solicitudes/{id}/estado`.
 - GET/PUT/DELETE de una solicitud de otro profesor.
+- Si es suya pero ya no está `PENDIENTE`: PUT/DELETE → `409 Conflict`.
 
 Las solicitudes de un `PROFESOR` se asocian al profesor enlazado a su usuario (campo `id_profesor` de `usuarios`). Si no tiene ninguno → `409 Conflict`.
 
@@ -73,8 +75,8 @@ Al arrancar, `DataSeeder` enlaza el usuario `user` al profesor con id 1 (lo crea
 
 | Método | Ruta | Descripción | Rol |
 |---|---|---|---|
-| GET | `/api/profesores` | Lista todos los profesores (id, nombre, apellidos, departamento, especialidad) | ADMIN, PROFESOR |
-| GET | `/api/profesores/{id}` | Obtiene un profesor por id | ADMIN, PROFESOR |
+| GET | `/api/profesores` | Lista todos los profesores (id, nombre, apellidos, departamento, especialidad) | ADMIN |
+| GET | `/api/profesores/{id}` | Obtiene un profesor por id | ADMIN |
 | POST | `/api/profesores` | Crea un profesor | ADMIN |
 | PUT | `/api/profesores/{id}` | Actualiza un profesor | ADMIN |
 | DELETE | `/api/profesores/{id}` | Elimina un profesor | ADMIN |
@@ -85,8 +87,8 @@ Al arrancar, `DataSeeder` enlaza el usuario `user` al profesor con id 1 (lo crea
 
 | Método | Ruta | Descripción | Rol |
 |---|---|---|---|
-| GET | `/api/grupos-alumnado` | Lista todos los grupos | ADMIN, PROFESOR |
-| GET | `/api/grupos-alumnado/{codGrupo}` | Obtiene un grupo | ADMIN, PROFESOR |
+| GET | `/api/grupos-alumnado` | Lista todos los grupos | ADMIN |
+| GET | `/api/grupos-alumnado/{codGrupo}` | Obtiene un grupo | ADMIN |
 | POST | `/api/grupos-alumnado` | Crea un grupo | ADMIN |
 | PUT | `/api/grupos-alumnado/{codGrupo}` | Actualiza un grupo | ADMIN |
 | DELETE | `/api/grupos-alumnado/{codGrupo}` | Elimina un grupo | ADMIN |
@@ -97,8 +99,8 @@ Al arrancar, `DataSeeder` enlaza el usuario `user` al profesor con id 1 (lo crea
 
 | Método | Ruta | Descripción | Rol |
 |---|---|---|---|
-| GET | `/api/sesiones-horario` | Lista todas las sesiones | ADMIN, PROFESOR |
-| GET | `/api/sesiones-horario/{id}` | Obtiene una sesión | ADMIN, PROFESOR |
+| GET | `/api/sesiones-horario` | Lista todas las sesiones | ADMIN |
+| GET | `/api/sesiones-horario/{id}` | Obtiene una sesión | ADMIN |
 | POST | `/api/sesiones-horario` | Crea una sesión (valida solapes) | ADMIN |
 | PUT | `/api/sesiones-horario/{id}` | Actualiza una sesión | ADMIN |
 | DELETE | `/api/sesiones-horario/{id}` | Elimina una sesión | ADMIN |
@@ -114,9 +116,9 @@ Al arrancar, `DataSeeder` enlaza el usuario `user` al profesor con id 1 (lo crea
 | GET | `/api/moscosos-solicitudes` | ADMIN: todas las solicitudes. PROFESOR: solo las suyas | ADMIN, PROFESOR |
 | GET | `/api/moscosos-solicitudes/{id}` | Obtiene una solicitud | ADMIN, PROFESOR (propia) |
 | POST | `/api/moscosos-solicitudes` | Crea solicitud (estado siempre `PENDIENTE`). Un PROFESOR siempre la crea a su nombre: se ignora el profesor del cuerpo | ADMIN, PROFESOR |
-| PUT | `/api/moscosos-solicitudes/{id}` | Actualiza datos de una solicitud | ADMIN, PROFESOR (propia) |
+| PUT | `/api/moscosos-solicitudes/{id}` | Actualiza datos de una solicitud | ADMIN, PROFESOR (propia y `PENDIENTE`) |
 | **PATCH** | `/api/moscosos-solicitudes/{id}/estado` | Aprueba o rechaza una solicitud | **ADMIN** |
-| DELETE | `/api/moscosos-solicitudes/{id}` | Elimina una solicitud | ADMIN, PROFESOR (propia) |
+| DELETE | `/api/moscosos-solicitudes/{id}` | Elimina una solicitud | ADMIN, PROFESOR (propia y `PENDIENTE`) |
 
 ### PATCH estado — body
 
@@ -160,7 +162,7 @@ Clave disponible: `capacidad_diaria` (valor por defecto: `5`).
 
 | Método | Ruta | Descripción |
 |---|---|---|
-| GET | `/api/consultas/sesiones-por-dia` | Número de sesiones agrupadas por día de la semana |
+| GET | `/api/consultas/sesiones-por-dia` | Número de sesiones agrupadas por día de la semana (solo ADMIN) |
 
 ---
 

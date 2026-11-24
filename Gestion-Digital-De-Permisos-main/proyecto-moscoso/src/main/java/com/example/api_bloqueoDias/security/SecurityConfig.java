@@ -62,7 +62,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/error")
                         .permitAll()
-                        // PROFESOR solo lectura: escritura solo para ADMIN
+                        // Datos de profesores, grupos y horarios: solo ADMIN (el profesor usa /api/auth/me)
+                        .requestMatchers(HttpMethod.GET, "/api/profesores/**", "/api/grupos-alumnado/**",
+                                "/api/sesiones-horario/**", "/api/consultas/**").hasRole("ADMIN")
+                        // PROFESOR solo lectura de bloqueos y configuración: escritura solo para ADMIN
                         .requestMatchers(HttpMethod.POST, "/api/bloqueos-calendario/**", "/api/profesores/**",
                                 "/api/grupos-alumnado/**", "/api/sesiones-horario/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/bloqueos-calendario/**", "/api/profesores/**",
