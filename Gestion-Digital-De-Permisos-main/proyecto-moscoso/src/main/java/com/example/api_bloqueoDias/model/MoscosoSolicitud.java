@@ -9,7 +9,8 @@ import java.time.LocalDate;
 public class MoscosoSolicitud {
  @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long idSolicitud;
  @ManyToOne(fetch=FetchType.EAGER, optional=false) @JoinColumn(name="id_profesor", nullable=false)
- @JsonIgnoreProperties({"hibernateLazyInitializer","handler","dni","cp","localidad","telefono","direccion","cuerpo"}) private Profesor profesor;
+ @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "dni", "cp", "localidad", "telefono", "direccion", "cuerpo"})
+ private Profesor profesor;
  @NotNull @Column(nullable=false) private LocalDate fecha;
  @NotNull @Enumerated(EnumType.STRING) @Column(nullable=false, length=15) private EstadoSolicitud estado;
  @NotNull @Enumerated(EnumType.STRING) @Column(name="tipo_lectivo", nullable=false, length=15) private TipoLectivo tipoLectivo;
