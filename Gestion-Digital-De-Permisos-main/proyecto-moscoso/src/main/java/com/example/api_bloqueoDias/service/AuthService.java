@@ -6,6 +6,10 @@ import com.example.api_bloqueoDias.repository.UsuarioRepository;
 import com.example.api_bloqueoDias.security.JwtTokenService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.example.api_bloqueoDias.dto.MeDto;
+import com.example.api_bloqueoDias.model.Profesor;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 import com.example.api_bloqueoDias.model.Usuario;
 
@@ -20,6 +24,16 @@ public class AuthService {
 
  public AuthService(UsuarioRepository repo, PasswordEncoder encoder, JwtTokenService jwtService) {
   this.repo = repo; this.encoder = encoder; this.jwtService = jwtService;
+ }
+
+ @Transactional(readOnly = true)
+ public MeDto me(String username) {
+  Usuario u = repo.findByUsername(username)
+    .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado: " + username));
+  Profesor p = u.getProfesor();
+  MeDto.ProfesorDto pd = p == null ? null : new MeDto.ProfesorDto(p.getIdProfesor(), p.getNombre(),
+    p.getApellidos(), p.getDepartamento(), p.getEspecialidad(), p.getTelefono());
+  return new MeDto(u.getUsername(), u.getRol().name(), pd);
  }
 
  public LoginResponseDto login(LoginRequestDto dto) {

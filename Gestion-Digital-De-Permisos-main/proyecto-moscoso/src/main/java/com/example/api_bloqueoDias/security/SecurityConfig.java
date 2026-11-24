@@ -4,6 +4,7 @@ import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -61,6 +62,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/error")
                         .permitAll()
+                        // PROFESOR solo lectura: escritura solo para ADMIN
+                        .requestMatchers(HttpMethod.POST, "/api/bloqueos-calendario/**", "/api/profesores/**",
+                                "/api/grupos-alumnado/**", "/api/sesiones-horario/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/bloqueos-calendario/**", "/api/profesores/**",
+                                "/api/grupos-alumnado/**", "/api/sesiones-horario/**", "/api/configuracion/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/bloqueos-calendario/**", "/api/profesores/**",
+                                "/api/grupos-alumnado/**", "/api/sesiones-horario/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/moscosos-solicitudes/*/estado").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2

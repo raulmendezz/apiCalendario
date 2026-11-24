@@ -8,8 +8,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
@@ -47,6 +49,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiError> conflicto(DataIntegrityViolationException ex, HttpServletRequest req) {
         return respuesta(HttpStatus.CONFLICT, "No se puede completar la operación porque hay datos relacionados o duplicados.", req);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiError> accesoDenegado(AccessDeniedException ex, HttpServletRequest req) {
+        return respuesta(HttpStatus.FORBIDDEN, "No tienes permisos para acceder a este recurso.", req);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiError> rutaNoEncontrada(NoResourceFoundException ex, HttpServletRequest req) {
+        return respuesta(HttpStatus.NOT_FOUND, "Recurso no encontrado: " + req.getRequestURI(), req);
     }
 
     @ExceptionHandler(Exception.class)
