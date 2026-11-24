@@ -4,6 +4,22 @@ Base URL: `http://localhost:8080`
 
 > **Seguridad (Sprint 3):** todos los endpoints requieren JWT excepto `POST /api/auth/login`. Envía el token como `Authorization: Bearer <token>`.
 
+## Roles
+
+| Rol | Permisos |
+|---|---|
+| `ADMIN` | Todo: lectura y escritura en todos los recursos, y resolver solicitudes. |
+| `PROFESOR` | Solo lectura (GET) de profesores, grupos, sesiones, bloqueos y configuración. En solicitudes solo ve, crea, edita y borra **las suyas**. |
+
+Un `PROFESOR` recibe `403 Forbidden` en:
+
+- POST/PUT/DELETE de `/api/bloqueos-calendario`, `/api/profesores`, `/api/grupos-alumnado` y `/api/sesiones-horario`.
+- PUT de `/api/configuracion/{clave}`.
+- PATCH `/api/moscosos-solicitudes/{id}/estado`.
+- GET/PUT/DELETE de una solicitud de otro profesor.
+
+Las solicitudes de un `PROFESOR` se asocian al profesor enlazado a su usuario (campo `id_profesor` de `usuarios`). Si no tiene ninguno → `409 Conflict`.
+
 ---
 
 ## Autenticación `/api/auth`
@@ -11,6 +27,7 @@ Base URL: `http://localhost:8080`
 | Método | Ruta | Descripción | Auth |
 |---|---|---|---|
 | POST | `/api/auth/login` | Obtiene un token JWT | Público |
+| GET | `/api/auth/me` | Usuario logueado y su profesor | Cualquier rol |
 
 ### POST /api/auth/login — body
 ```json
@@ -30,14 +47,34 @@ Base URL: `http://localhost:8080`
 
 Credenciales incorrectas → `401 Unauthorized` con formato `ApiError`.
 
+### GET /api/auth/me — respuesta 200 (PROFESOR)
+```json
+{
+  "username": "user",
+  "rol": "PROFESOR",
+  "profesor": {
+    "idProfesor": 1,
+    "nombre": "Raul",
+    "apellidos": "Martinez Lopez",
+    "departamento": "Tecnologia",
+    "especialidad": "Informatica",
+    "telefono": "600123456"
+  }
+}
+```
+
+Usuario sin profesor enlazado (p. ej. `admin`): `{ "username": "admin", "rol": "ADMIN", "profesor": null }`.  
+Sin token → `401 Unauthorized`.  
+Al arrancar, `DataSeeder` enlaza el usuario `user` al profesor con id 1 (lo crea con datos de prueba si no existe).
+
 ---
 
 ## Profesores `/api/profesores`
 
-| Método | Ruta | Descripción | Rol (Sprint 3) |
+| Método | Ruta | Descripción | Rol |
 |---|---|---|---|
-| GET | `/api/profesores` | Lista todos los profesores (id, nombre, apellidos, departamento, especialidad) | ADMIN |
-| GET | `/api/profesores/{id}` | Obtiene un profesor por id | ADMIN |
+| GET | `/api/profesores` | Lista todos los profesores (id, nombre, apellidos, departamento, especialidad) | ADMIN, PROFESOR |
+| GET | `/api/profesores/{id}` | Obtiene un profesor por id | ADMIN, PROFESOR |
 | POST | `/api/profesores` | Crea un profesor | ADMIN |
 | PUT | `/api/profesores/{id}` | Actualiza un profesor | ADMIN |
 | DELETE | `/api/profesores/{id}` | Elimina un profesor | ADMIN |
@@ -46,10 +83,10 @@ Credenciales incorrectas → `401 Unauthorized` con formato `ApiError`.
 
 ## Grupos de alumnado `/api/grupos-alumnado`
 
-| Método | Ruta | Descripción | Rol (Sprint 3) |
+| Método | Ruta | Descripción | Rol |
 |---|---|---|---|
-| GET | `/api/grupos-alumnado` | Lista todos los grupos | ADMIN |
-| GET | `/api/grupos-alumnado/{codGrupo}` | Obtiene un grupo | ADMIN |
+| GET | `/api/grupos-alumnado` | Lista todos los grupos | ADMIN, PROFESOR |
+| GET | `/api/grupos-alumnado/{codGrupo}` | Obtiene un grupo | ADMIN, PROFESOR |
 | POST | `/api/grupos-alumnado` | Crea un grupo | ADMIN |
 | PUT | `/api/grupos-alumnado/{codGrupo}` | Actualiza un grupo | ADMIN |
 | DELETE | `/api/grupos-alumnado/{codGrupo}` | Elimina un grupo | ADMIN |
@@ -58,10 +95,10 @@ Credenciales incorrectas → `401 Unauthorized` con formato `ApiError`.
 
 ## Sesiones de horario `/api/sesiones-horario`
 
-| Método | Ruta | Descripción | Rol (Sprint 3) |
+| Método | Ruta | Descripción | Rol |
 |---|---|---|---|
-| GET | `/api/sesiones-horario` | Lista todas las sesiones | ADMIN |
-| GET | `/api/sesiones-horario/{id}` | Obtiene una sesión | ADMIN |
+| GET | `/api/sesiones-horario` | Lista todas las sesiones | ADMIN, PROFESOR |
+| GET | `/api/sesiones-horario/{id}` | Obtiene una sesión | ADMIN, PROFESOR |
 | POST | `/api/sesiones-horario` | Crea una sesión (valida solapes) | ADMIN |
 | PUT | `/api/sesiones-horario/{id}` | Actualiza una sesión | ADMIN |
 | DELETE | `/api/sesiones-horario/{id}` | Elimina una sesión | ADMIN |
@@ -72,14 +109,14 @@ Credenciales incorrectas → `401 Unauthorized` con formato `ApiError`.
 
 ## Solicitudes de moscoso `/api/moscosos-solicitudes`
 
-| Método | Ruta | Descripción | Rol (Sprint 3) |
+| Método | Ruta | Descripción | Rol |
 |---|---|---|---|
-| GET | `/api/moscosos-solicitudes` | Lista todas las solicitudes | ADMIN |
+| GET | `/api/moscosos-solicitudes` | ADMIN: todas las solicitudes. PROFESOR: solo las suyas | ADMIN, PROFESOR |
 | GET | `/api/moscosos-solicitudes/{id}` | Obtiene una solicitud | ADMIN, PROFESOR (propia) |
-| POST | `/api/moscosos-solicitudes` | Crea solicitud (estado siempre `PENDIENTE`) | PROFESOR |
-| PUT | `/api/moscosos-solicitudes/{id}` | Actualiza datos de una solicitud | PROFESOR (propia) |
+| POST | `/api/moscosos-solicitudes` | Crea solicitud (estado siempre `PENDIENTE`). Un PROFESOR siempre la crea a su nombre: se ignora el profesor del cuerpo | ADMIN, PROFESOR |
+| PUT | `/api/moscosos-solicitudes/{id}` | Actualiza datos de una solicitud | ADMIN, PROFESOR (propia) |
 | **PATCH** | `/api/moscosos-solicitudes/{id}/estado` | Aprueba o rechaza una solicitud | **ADMIN** |
-| DELETE | `/api/moscosos-solicitudes/{id}` | Elimina una solicitud | ADMIN |
+| DELETE | `/api/moscosos-solicitudes/{id}` | Elimina una solicitud | ADMIN, PROFESOR (propia) |
 
 ### PATCH estado — body
 
@@ -98,9 +135,9 @@ Solo se puede resolver una solicitud en estado `PENDIENTE`.
 
 ## Bloqueos de calendario `/api/bloqueos-calendario`
 
-| Método | Ruta | Descripción | Rol (Sprint 3) |
+| Método | Ruta | Descripción | Rol |
 |---|---|---|---|
-| GET | `/api/bloqueos-calendario` | Lista todos los bloqueos | ADMIN |
+| GET | `/api/bloqueos-calendario` | Lista todos los bloqueos | ADMIN, PROFESOR |
 | POST | `/api/bloqueos-calendario` | Crea un bloqueo (tipo, fechaInicio, fechaFin) | ADMIN |
 | PUT | `/api/bloqueos-calendario/{id}` | Actualiza un bloqueo | ADMIN |
 | DELETE | `/api/bloqueos-calendario/{id}` | Elimina un bloqueo | ADMIN |
@@ -109,10 +146,10 @@ Solo se puede resolver una solicitud en estado `PENDIENTE`.
 
 ## Configuración `/api/configuracion`
 
-| Método | Ruta | Descripción | Rol (Sprint 3) |
+| Método | Ruta | Descripción | Rol |
 |---|---|---|---|
-| GET | `/api/configuracion` | Lista todos los parámetros | ADMIN |
-| GET | `/api/configuracion/{clave}` | Obtiene un parámetro | ADMIN |
+| GET | `/api/configuracion` | Lista todos los parámetros | ADMIN, PROFESOR |
+| GET | `/api/configuracion/{clave}` | Obtiene un parámetro | ADMIN, PROFESOR |
 | PUT | `/api/configuracion/{clave}` | Actualiza un parámetro | ADMIN |
 
 Clave disponible: `capacidad_diaria` (valor por defecto: `5`).
@@ -144,6 +181,6 @@ Clave disponible: `capacidad_diaria` (valor por defecto: `5`).
 | 400 | Datos inválidos o JSON malformado |
 | 401 | No autenticado o credenciales inválidas |
 | 403 | Sin permisos para el recurso |
-| 404 | Recurso no encontrado |
+| 404 | Recurso o ruta no encontrados |
 | 409 | Regla de negocio o integridad de datos |
 | 500 | Error interno (ver logs) |
